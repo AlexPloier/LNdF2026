@@ -7,7 +7,7 @@ def main():
     # Parameter
     # -----------------------------
     GRID_SIZE = 32
-    NUM_POINTS = 60
+    NUM_POINTS = 54
     CONNECTION_PROB= 0.2
 
     # -----------------------------
