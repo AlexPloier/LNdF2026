@@ -6,9 +6,9 @@ def main():
     # -----------------------------
     # Parameter
     # -----------------------------
-    GRID_SIZE = 15
-    NUM_POINTS = 5
-    MAX_CONNECTIONS = 18
+    GRID_SIZE = 32
+    NUM_POINTS = 60
+    CONNECTION_PROB= 0.2
 
     # -----------------------------
     # Grid erzeugen (ohne Plot)
@@ -16,7 +16,7 @@ def main():
     points, connections = generate_grid(
         GRID_SIZE=GRID_SIZE,
         NUM_POINTS=NUM_POINTS,
-        MAX_CONNECTIONS=MAX_CONNECTIONS,
+        CONNECTION_PROB=CONNECTION_PROB,
     )
 
     # -----------------------------

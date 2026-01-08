@@ -2,8 +2,6 @@ def maximum_independent_set(points, connections):
     # -----------------------------
     # Build adjacency list
     # -----------------------------
-    print(points, connections)
-    print("MIS wird gestartet")
     
     adj = {v: set() for v in points}
     for u, v in connections:
@@ -14,7 +12,6 @@ def maximum_independent_set(points, connections):
 
     def branch(current_set, candidates):
         nonlocal best
-        print(current_set,candidates)
         # ---- Branch & Bound ----
         if len(current_set) + len(candidates) <= len(best):
             return

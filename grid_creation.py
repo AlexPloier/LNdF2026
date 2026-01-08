@@ -15,11 +15,42 @@ def lines_intersect(A, B, C, D):
         return False
     return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
 
+def point_on_segment(P, A, B, eps=1e-6):
+    """
+    Prüft, ob Punkt P auf dem Liniensegment AB liegt
+    """
+    # Kreuzprodukt = 0 → kollinear
+    cross = (P[1] - A[1]) * (B[0] - A[0]) - (P[0] - A[0]) * (B[1] - A[1])
+    if abs(cross) > eps:
+        return False
 
-# ============================================================
-# 1️⃣ Graph erzeugen (LOGIK)
-# ============================================================
-def generate_grid(GRID_SIZE, NUM_POINTS, MAX_CONNECTIONS):
+    # Skalarprodukt → zwischen A und B
+    dot = (P[0] - A[0]) * (B[0] - A[0]) + (P[1] - A[1]) * (B[1] - A[1])
+    if dot < 0:
+        return False
+
+    sq_len = (B[0] - A[0])**2 + (B[1] - A[1])**2
+    if dot > sq_len:
+        return False
+
+    return True
+
+def valid_connection(p1, p2, points, connections):
+    # 1️⃣ Keine Kreuzung mit bestehenden Kanten
+    for c1, c2 in connections:
+        if lines_intersect(p1, p2, points[c1], points[c2]):
+            return False
+
+    # 2️⃣ Kein anderer Punkt darf auf der Strecke liegen
+    for pid, p in points.items():
+        if p == p1 or p == p2:
+            continue
+        if point_on_segment(p, p1, p2):
+            return False
+
+    return True
+
+def generate_grid(GRID_SIZE, NUM_POINTS, CONNECTION_PROB):
     """
     Rückgabe:
         points: dict[int, (x, y)]
@@ -32,8 +63,8 @@ def generate_grid(GRID_SIZE, NUM_POINTS, MAX_CONNECTIONS):
     raw_points = set()
     while len(raw_points) < NUM_POINTS:
         raw_points.add((
-            random.randint(1, GRID_SIZE-1),
-            random.randint(1, GRID_SIZE-1)
+            random.randint(1, GRID_SIZE - 1),
+            random.randint(1, GRID_SIZE - 1)
         ))
 
     points = {i: p for i, p in enumerate(raw_points)}
@@ -57,17 +88,14 @@ def generate_grid(GRID_SIZE, NUM_POINTS, MAX_CONNECTIONS):
         for other in candidates:
             p1, p2 = points[pid], points[other]
 
-            for c1, c2 in connections:
-                if lines_intersect(p1, p2, points[c1], points[c2]):
-                    break
-            else:
+            if valid_connection(p1, p2, points, connections):
                 connections.append((pid, other))
                 degrees[pid] += 1
                 degrees[other] += 1
                 break
 
     # -----------------------------
-    # Zusätzliche Verbindungen
+    # Zusätzliche Verbindungen (mit Wahrscheinlichkeit)
     # -----------------------------
     all_pairs = [
         (i, j)
@@ -78,8 +106,9 @@ def generate_grid(GRID_SIZE, NUM_POINTS, MAX_CONNECTIONS):
     random.shuffle(all_pairs)
 
     for id1, id2 in all_pairs:
-        if len(connections) >= MAX_CONNECTIONS:
-            break
+        # Wahrscheinlichkeit statt Max-Limit
+        if random.random() > CONNECTION_PROB:
+            continue
 
         p1, p2 = points[id1], points[id2]
 
@@ -93,7 +122,6 @@ def generate_grid(GRID_SIZE, NUM_POINTS, MAX_CONNECTIONS):
 
     return points, connections
 
-
 # ============================================================
 # 2️⃣ Graph plotten (NUR VISUALISIERUNG)
 # ============================================================
@@ -102,7 +130,7 @@ def plot_graph(points, connections, sol, GRID_SIZE, highlight_nodes=None):
     highlight_nodes: set[int] oder None
     """
 
-    plt.figure(figsize=(6, 6))
+    plt.figure(figsize=(15, 10))
     plt.xticks(range(GRID_SIZE + 1))
     plt.yticks(range(GRID_SIZE + 1))
     plt.grid(True)
@@ -140,4 +168,5 @@ def plot_graph(points, connections, sol, GRID_SIZE, highlight_nodes=None):
     plt.xlim(0, GRID_SIZE)
     plt.ylim(0, GRID_SIZE)
     plt.title("Das Maximal Independet Set ist: ["+sol+"]")
+    plt.axis("off")
     plt.show()
