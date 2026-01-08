@@ -20,7 +20,8 @@ def generate_grid(
     GRID_SIZE: int,
     NUM_POINTS: int,
     MAX_CONNECTIONS: int,
-    show_plot: bool = True
+    show_plot: bool = True,
+    highlight_nodes=None   
 ):
     """
     Erzeugt ein 2D-Grid mit zufälligen Punkten und kreuzungsfreien Verbindungen.
@@ -107,15 +108,18 @@ def generate_grid(
         plt.grid(True)
 
         for pid, (x, y) in points.items():
-            plt.scatter(x, y, s=100, zorder=3)
-            plt.text(x + 0.1, y + 0.1,
-                      str(pid), 
-                      fontsize=14, 
-                      fontweight="bold", 
-                      color="black", 
-                      zorder=4, 
-                      bbox=dict(facecolor="white", edgecolor="none", alpha=0.7)
-                    )
+            plt.scatter(x, y, s=100)
+            plt.text(x + 0.15, y + 0.15, str(pid))
+
+            if highlight_nodes and pid in highlight_nodes:
+                plt.scatter(
+                    x, y,
+                    s=220,
+                    facecolors='none',
+                    edgecolors='green',
+                    linewidths=2,
+                    zorder=4
+                )
 
         for id1, id2 in connections:
             x1, y1 = points[id1]
